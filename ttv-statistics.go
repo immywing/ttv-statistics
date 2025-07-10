@@ -1,0 +1,107 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"ttv-statistics/api"
+	"ttv-statistics/helixclient"
+)
+
+const (
+	HostFlagName         string = "host"
+	hostHelpText         string = "the host address where the API should be hosted"
+	clientIDFlagName     string = "client-id"
+	clientSecretFlagName string = "client-secret"
+	clientIDHelpText     string = "the client ID used to access Twitch helix API"
+	clientSecretHelpText string = "the client secret used to access Twtich helix API"
+)
+
+var (
+	stringFlags []stringFlag = []stringFlag{
+		{
+			ptr:          &api.Host,
+			flagName:     HostFlagName,
+			defaultValue: "",
+			helpText:     hostHelpText,
+		},
+		{
+			ptr:          &helixclient.ClientID,
+			flagName:     clientIDFlagName,
+			defaultValue: "",
+			helpText:     clientIDHelpText,
+		},
+		{
+			ptr:          &helixclient.ClientSecret,
+			flagName:     clientSecretFlagName,
+			defaultValue: "",
+			helpText:     clientSecretHelpText,
+		},
+	}
+)
+
+type stringFlag struct {
+	ptr          *string
+	flagName     string
+	defaultValue string
+	helpText     string
+}
+
+func parseFlags() error {
+
+	for _, stringFlag := range stringFlags {
+		flag.StringVar(stringFlag.ptr, stringFlag.flagName, stringFlag.defaultValue, stringFlag.helpText)
+	}
+
+	flag.Parse()
+
+	missingFlags := []string{}
+
+	for _, stringFlag := range stringFlags {
+		if *stringFlag.ptr == "" {
+			missingFlags = append(missingFlags, fmt.Sprintf("--%s", stringFlag.flagName))
+		}
+	}
+
+	if len(missingFlags) > 0 {
+		return fmt.Errorf("missing required flags: %s", strings.Join(missingFlags, ", "))
+	}
+
+	return nil
+
+}
+
+func runTTVStatisticsAPI() error {
+	server := api.NewTTVStatisticsServer()
+	server.Run()
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	<-signals
+	return server.ShutDownServer(context.Background())
+}
+
+func main() {
+
+	parseFlagsError := parseFlags()
+	if parseFlagsError != nil {
+		log.SetFlags(0)
+		log.Printf("Startup Error: %v", parseFlagsError)
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	// helixclient.InitHelixClientAuth(context.Background())
+	// log.Print(helixclient.GetUserData(context.Background(), "example user name"))
+
+	serverShutdownError := runTTVStatisticsAPI()
+	if serverShutdownError != nil {
+		log.Printf("Server failed to shutdown gracefully. Error: %v", serverShutdownError)
+		os.Exit(1)
+	}
+
+}

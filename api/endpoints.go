@@ -1,0 +1,18 @@
+package api
+
+import (
+	"fmt"
+	"net/http"
+	"ttv-statistics/handlers"
+)
+
+const (
+	apiName                    = "ttv-statistics"
+	getStreamerVideoStatistics = "getstreamervideostatistics"
+)
+
+var (
+	endpointMapping = map[string]func(w http.ResponseWriter, r *http.Request){
+		fmt.Sprintf("/%s/%s", apiName, getStreamerVideoStatistics): handlers.GetStreamerVideoStatistics,
+	}
+)
