@@ -50,7 +50,7 @@ func NewTTVStatisticsServer() *ttvStatisticsServer {
 func wiredMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	for endpoint, handler := range endpointMapping {
+	for endpoint, handler := range EndpointMapping {
 		mux.HandleFunc(endpoint, handler)
 	}
 

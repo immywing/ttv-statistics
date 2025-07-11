@@ -14,19 +14,21 @@ import (
 )
 
 const (
-	HostFlagName         string = "host"
+	hostFlagName         string = "host"
 	hostHelpText         string = "the host address where the API should be hosted"
 	clientIDFlagName     string = "client-id"
 	clientSecretFlagName string = "client-secret"
 	clientIDHelpText     string = "the client ID used to access Twitch helix API"
-	clientSecretHelpText string = "the client secret used to access Twtich helix API"
+	clientSecretHelpText string = "the client secret used to access Twitch helix API"
+	helixHostFlagName    string = "helix-host"
+	helixHostHelpText    string = "the host address of the twitch helix API "
 )
 
 var (
-	stringFlags []stringFlag = []stringFlag{
+	stringFlags = []stringFlag{
 		{
 			ptr:          &api.Host,
-			flagName:     HostFlagName,
+			flagName:     hostFlagName,
 			defaultValue: "",
 			helpText:     hostHelpText,
 		},
@@ -41,6 +43,12 @@ var (
 			flagName:     clientSecretFlagName,
 			defaultValue: "",
 			helpText:     clientSecretHelpText,
+		},
+		{
+			ptr:          &helixclient.HelixHost,
+			flagName:     helixHostFlagName,
+			defaultValue: "",
+			helpText:     helixHostHelpText,
 		},
 	}
 )
@@ -76,7 +84,7 @@ func parseFlags() error {
 
 }
 
-func runTTVStatisticsAPI() error {
+func runServerAndAwaitShutdown() error {
 	server := api.NewTTVStatisticsServer()
 	server.Run()
 	signals := make(chan os.Signal, 1)
@@ -95,10 +103,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	// helixclient.InitHelixClientAuth(context.Background())
-	// log.Print(helixclient.GetUserData(context.Background(), "example user name"))
+	helixclient.InitHelixClientAuth(context.Background())
 
-	serverShutdownError := runTTVStatisticsAPI()
+	serverShutdownError := runServerAndAwaitShutdown()
 	if serverShutdownError != nil {
 		log.Printf("Server failed to shutdown gracefully. Error: %v", serverShutdownError)
 		os.Exit(1)

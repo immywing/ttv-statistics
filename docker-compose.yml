@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  ttv-statistics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ttv-statistics:latest
+    restart: always
+    ports:
+      - "${APP_PORT:-8080}:${APP_PORT:-8080}"
+    env_file:
+      - .env
+    command: >
+      --host=${APP_HOST}
+      --client-id=${TWITCH_CLIENT_ID}
+      --client-secret=${TWITCH_CLIENT_SECRET}
+      --helix-host=${HELIX_HOST}

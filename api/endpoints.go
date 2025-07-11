@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	apiName                    = "ttv-statistics"
-	getStreamerVideoStatistics = "getstreamervideostatistics"
+	apiName            = "ttv-statistics"
+	getVideoStatistics = "getstreamervideostatistics"
 )
 
 var (
-	endpointMapping = map[string]func(w http.ResponseWriter, r *http.Request){
-		fmt.Sprintf("/%s/%s", apiName, getStreamerVideoStatistics): handlers.GetStreamerVideoStatistics,
+	EndpointMapping = map[string]func(w http.ResponseWriter, r *http.Request){
+		fmt.Sprintf("/%s/%s/{%s}", apiName, getVideoStatistics, handlers.UserNamePathParam): handlers.GetStreamerVideoStatistics,
 	}
 )

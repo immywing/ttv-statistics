@@ -8,25 +8,31 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path"
+	"strconv"
 	"strings"
 	"time"
+	"ttv-statistics/constants"
 )
 
 const (
-	getHelixAuthEndpoint string = "https://id.twitch.tv/oauth2/token"
+	getHelixAuthEndpoint string = "https://id.twitch.tv/oauth2/token" // currently hardcoded constant, this could be parsed as a CLI flag for flexibility
 
-	helixUsersEndpoint string = "https://api.twitch.tv/helix/users"
+	helixLoginURLParam  string = "login"
+	helixUserIDURLParam string = "user_id"
+	helixFirstURLParam  string = "first"
 
-	authorisationHeaderKey     string = "Authorization"
-	clientIDHeaderKey          string = "Client-ID"
-	contentTypeHeaderKey       string = "Content-Type"
-	contentTypeFormURLEndcoded string = "application/x-www-form-urlencoded"
-	contentTypeApplicationJson string = "application/json"
+	HelixUsersEndpoint  string = "/users"
+	HelixVideosEndpoint string = "/videos"
+
+	authorisationHeaderKey string = "Authorization"
+	clientIDHeaderKey      string = "Client-ID"
 )
 
 var (
 	ClientID     string
 	ClientSecret string
+	HelixHost    string
 
 	helixAccessToken string
 
@@ -40,24 +46,6 @@ var (
 	}
 )
 
-type tokenResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
-type UsersResponseBody struct {
-	Data []struct {
-		ID              string `json:"id"`
-		Login           string `json:"login"`
-		DisplayName     string `json:"display_name"`
-		ProfileImageURL string `json:"profile_image_url"`
-	} `json:"data"`
-}
-
-type clientResponseModels interface {
-	tokenResponse |
-		UsersResponseBody
-}
-
 func InitHelixClientAuth(ctx context.Context) error {
 	response, err := getHelixAccessToken(ctx)
 	if err != nil {
@@ -70,18 +58,38 @@ func InitHelixClientAuth(ctx context.Context) error {
 
 func GetUserData(ctx context.Context, userName string) (responseBody UsersResponseBody, err error) {
 
-	endpoint, err := url.Parse(helixUsersEndpoint)
+	endpoint, err := url.Parse(HelixHost)
 	if err != nil {
 		return responseBody, err
 	}
 
+	endpoint.Path = path.Join(endpoint.Path, HelixUsersEndpoint)
+
 	headers := generateHeaders(false)
 
 	queryParams := map[string]string{
-		"login": userName,
+		helixLoginURLParam: userName,
 	}
 
 	return executeRequest[UsersResponseBody](ctx, http.MethodGet, endpoint, queryParams, headers, nil)
+}
+
+func GetStreamerFirstNVideoStatistics(ctx context.Context, userID string, n int) (responseBody VideosResponseBody, err error) {
+	endpoint, err := url.Parse(HelixHost)
+	if err != nil {
+		return responseBody, err
+	}
+
+	endpoint.Path = path.Join(endpoint.Path, HelixVideosEndpoint)
+
+	headers := generateHeaders(false)
+
+	queryParams := map[string]string{
+		helixUserIDURLParam: userID,
+		helixFirstURLParam:  strconv.Itoa(n),
+	}
+
+	return executeRequest[VideosResponseBody](ctx, http.MethodGet, endpoint, queryParams, headers, nil)
 }
 
 func generateHeaders(setContentType bool) map[string]string {
@@ -92,13 +100,13 @@ func generateHeaders(setContentType bool) map[string]string {
 	}
 
 	if setContentType {
-		headers[contentTypeHeaderKey] = contentTypeApplicationJson
+		headers[constants.ContentTypeHeaderKey] = constants.ContentTypeApplicationJson
 	}
 
 	return headers
 }
 
-func getHelixAccessToken(ctx context.Context) (responseBody tokenResponse, err error) {
+func getHelixAccessToken(ctx context.Context) (responseBody TokenResponse, err error) {
 
 	endpoint, err := url.Parse(getHelixAuthEndpoint)
 	if err != nil {
@@ -106,7 +114,7 @@ func getHelixAccessToken(ctx context.Context) (responseBody tokenResponse, err e
 	}
 
 	headers := map[string]string{
-		contentTypeHeaderKey: contentTypeFormURLEndcoded,
+		constants.ContentTypeHeaderKey: constants.ContentTypeFormURLEndcoded,
 	}
 
 	params := url.Values{}
@@ -116,11 +124,11 @@ func getHelixAccessToken(ctx context.Context) (responseBody tokenResponse, err e
 
 	body := strings.NewReader(params.Encode())
 
-	return executeRequest[tokenResponse](ctx, http.MethodPost, endpoint, nil, headers, body)
+	return executeRequest[TokenResponse](ctx, http.MethodPost, endpoint, nil, headers, body)
 }
 
 // Template functions 😈
-func executeRequest[T clientResponseModels](
+func executeRequest[T ClientResponseModels](
 	ctx context.Context, method string, endpoint *url.URL, queryParams, headers map[string]string, body io.Reader,
 ) (responseBody T, err error) {
 
@@ -167,4 +175,51 @@ func executeRequest[T clientResponseModels](
 	err = json.Unmarshal(responseBuffer, &responseBody)
 
 	return responseBody, err
+}
+
+type TokenResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+type UsersResponseBody struct {
+	Data []struct {
+		ID              string `json:"id"`
+		Login           string `json:"login"`
+		DisplayName     string `json:"display_name"`
+		ProfileImageURL string `json:"profile_image_url"`
+	} `json:"data"`
+}
+
+type VideoInfo struct {
+	ID            string    `json:"id"`
+	StreamID      *string   `json:"stream_id"`
+	UserID        string    `json:"user_id"`
+	UserLogin     string    `json:"user_login"`
+	UserName      string    `json:"user_name"`
+	Title         string    `json:"title"`
+	Description   string    `json:"description"`
+	CreatedAt     time.Time `json:"created_at"`
+	PublishedAt   time.Time `json:"published_at"`
+	URL           string    `json:"url"`
+	ThumbnailURL  string    `json:"thumbnail_url"`
+	Viewable      string    `json:"viewable"`
+	ViewCount     int       `json:"view_count"`
+	Language      string    `json:"language"`
+	Type          string    `json:"type"`
+	Duration      string    `json:"duration"`
+	MutedSegments []struct {
+		Duration int `json:"duration"`
+		Offset   int `json:"offset"`
+	} `json:"muted_segments,omitempty"`
+}
+
+type VideosResponseBody struct {
+	Data       []VideoInfo       `json:"data"`
+	Pagination map[string]string `json:"pagination"`
+}
+
+type ClientResponseModels interface {
+	TokenResponse |
+		UsersResponseBody |
+		VideosResponseBody
 }

@@ -23,3 +23,12 @@
     - gather info from API docs and reference here before making a concrete decision!
 
 > <b>Outcome</b>: still under review
+
+## Averages calculations
+
+- assumption: both integers and fractionals are valid for representing the required averages
+
+- integers have a degree of validity of a float/double etc, as a streamer never gets a view > 0 && < 1
+
+> <b>Outcome</b>: For simplicity in consuming the information, calculate and display these figures as integers
+
