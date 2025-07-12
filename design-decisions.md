@@ -11,6 +11,30 @@
 
 ---
 
+## Use of Generics in the Helix Client
+
+### Decision
+
+Generics are used in the Helix client's HTTP execution layer over alternatives such as using `interface{}` or `any`.
+
+### Rationale
+
+- **Type Safety**  
+  Using generics ensures that only expected response types are handled at compile-time, reducing the likelihood of runtime errors or misinterpretation of data structures.
+
+- **Eliminates Runtime Type Assertions**  
+  Avoiding `interface{}` removes the need for manual type assertions or reflection, which can introduce bugs and add unnecessary complexity.
+
+- **Improved Performance**  
+  Generics allow data to be decoded directly into concrete types without intermediate structures or interface conversions, reducing overhead.
+
+- **Clarity and Maintainability**  
+  The use of generics makes the client easier to reason about and extend, with clear boundaries on what types are expected where. This improves readability and supports safer future changes.
+
+> **Outcome**: Use Go generics with a constrained union of allowed response types to ensure type-safe, efficient, and maintainable request handling.
+
+---
+
 ## `helix/users` Returns an Array of User Data
 
 - **Assumption**: The Helix API returns an array in case multiple usernames are queried or if partial/fuzzy matches are made. However, when querying with a specific `login` (username), we expect at most one exact match.
@@ -44,3 +68,22 @@ After reviewing the [Twitch Helix API documentation](https://dev.twitch.tv/docs/
 - Integers are also valid, as a streamer never gets a view count between `0 < x < 1`.
 
 > **Outcome**: For simplicity in consuming the information, calculate and display these figures as integers.
+
+## "Title of the most viewed video along with its view count"
+
+The technical specification includes a requirement for:  
+> "Title of the most viewed video along with its view count"
+
+This was presented as a single bullet point, and it was unclear whether the intended response format should:
+
+- Combine both values into a single string (e.g. `"Most viewed: <title> (views: <count>)"`), or  
+- Return them as distinct values.
+
+### Rationale
+
+- Returning a combined string obscures the view count and makes it harder to consume in downstream processes (e.g., UI, analytics, testing).
+- Returning `title` and `view_count` as separate fields within a nested struct preserves semantic clarity.
+- Grouping these fields under a `most_viewed_video` object clearly communicates their relationship.
+- This structure also allows for future extensibility — if more metadata about the most viewed video is needed later (e.g., duration, URL), it can be added to the struct without disrupting the response shape.
+
+> **Outcome**: Return a `most_viewed_video` object with `title` and `view_count` as separate fields.

@@ -6,12 +6,17 @@ import (
 	"ttv-statistics/helixclient"
 )
 
+type MostViewedVideo struct {
+	Title     string `json:"title"`
+	ViewCount int    `json:"view_count"`
+}
+
 type LastNVideoStatistics struct {
-	VideoLengthsSum      time.Duration `json:"video_lengths_sum"`
-	MostViewedVideoTitle string        `json:"most_viewed_video_title"`
-	ViewCountSum         int           `json:"view_count_sum"`
-	ViewCountAvg         int           `json:"view_count_avg"`
-	ViewPerMinuteAvg     int           `json:"view_per_minute_avg"`
+	VideoLengthsSum  time.Duration   `json:"video_lengths_sum"`
+	ViewCountSum     int             `json:"view_count_sum"`
+	ViewCountAvg     int             `json:"view_count_avg"`
+	ViewPerMinuteAvg int             `json:"view_per_minute_avg"`
+	MostViewedVideo  MostViewedVideo `json:"most_viewed_video"`
 }
 
 func AggregateStreamerVideoStatistics(videosData []helixclient.VideoInfo) (aggregateData LastNVideoStatistics, err error) {
@@ -28,7 +33,10 @@ func AggregateStreamerVideoStatistics(videosData []helixclient.VideoInfo) (aggre
 
 		if topVideoViewCount < videoData.ViewCount {
 			topVideoViewCount = videoData.ViewCount
-			aggregateData.MostViewedVideoTitle = videoData.Title
+			aggregateData.MostViewedVideo = MostViewedVideo{
+				Title:     videoData.Title,
+				ViewCount: videoData.ViewCount,
+			}
 		}
 
 		duration, err := time.ParseDuration(videoData.Duration)
@@ -45,7 +53,7 @@ func AggregateStreamerVideoStatistics(videosData []helixclient.VideoInfo) (aggre
 		aggregateData.ViewPerMinuteAvg = aggregateData.ViewCountSum / int(aggregateData.VideoLengthsSum.Minutes())
 	}
 
-	aggregateData.MostViewedVideoTitle = fmt.Sprintf("Title: %s. View Count: %d", aggregateData.MostViewedVideoTitle, topVideoViewCount)
+	// aggregateData.MostViewedVideo = fmt.Sprintf("Title: %s. View Count: %d", aggregateData.MostViewedVideo, topVideoViewCount)
 
 	return aggregateData, err
 }

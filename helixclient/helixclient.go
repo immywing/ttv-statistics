@@ -65,7 +65,7 @@ func GetUserData(ctx context.Context, userName string) (responseBody UsersRespon
 
 	endpoint.Path = path.Join(endpoint.Path, HelixUsersEndpoint)
 
-	headers := generateHeaders(false)
+	headers := generateHeaders()
 
 	queryParams := map[string]string{
 		helixLoginURLParam: userName,
@@ -82,7 +82,7 @@ func GetStreamerFirstNVideoStatistics(ctx context.Context, userID string, n int)
 
 	endpoint.Path = path.Join(endpoint.Path, HelixVideosEndpoint)
 
-	headers := generateHeaders(false)
+	headers := generateHeaders()
 
 	queryParams := map[string]string{
 		helixUserIDURLParam: userID,
@@ -92,7 +92,7 @@ func GetStreamerFirstNVideoStatistics(ctx context.Context, userID string, n int)
 	return executeRequest[VideosResponseBody](ctx, http.MethodGet, endpoint, queryParams, headers, nil)
 }
 
-func generateHeaders(setContentType bool) map[string]string {
+func generateHeaders() map[string]string {
 	return map[string]string{
 		clientIDHeaderKey:      ClientID,
 		authorisationHeaderKey: fmt.Sprintf("Bearer %s", helixAccessToken),

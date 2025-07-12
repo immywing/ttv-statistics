@@ -37,7 +37,7 @@ go run . \
 
 First, create a .env file at the root of the repository, supplying your credentials following the [example .env file](.env.example)
 
-To build and run the application using Docker Compose:
+Ensure your Docker Engine is running, then build and run the application using Docker Compose:
 
 ```bash
 docker compose up --build

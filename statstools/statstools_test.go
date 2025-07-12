@@ -43,11 +43,11 @@ func TestAggregateStreamerVideoStatistics(t *testing.T) {
 				},
 			},
 			expected: statstools.LastNVideoStatistics{
-				VideoLengthsSum:      4*time.Hour + 30*time.Minute,
-				ViewCountSum:         4500,
-				MostViewedVideoTitle: "Title: Second Video. View Count: 2000",
-				ViewCountAvg:         1500,
-				ViewPerMinuteAvg:     16,
+				VideoLengthsSum:  4*time.Hour + 30*time.Minute,
+				ViewCountSum:     4500,
+				MostViewedVideo:  statstools.MostViewedVideo{Title: "Second Video", ViewCount: 2000},
+				ViewCountAvg:     1500,
+				ViewPerMinuteAvg: 16,
 			},
 		},
 		{
@@ -71,11 +71,11 @@ func TestAggregateStreamerVideoStatistics(t *testing.T) {
 				},
 			},
 			expected: statstools.LastNVideoStatistics{
-				VideoLengthsSum:      0 * time.Minute,
-				ViewCountSum:         4500,
-				MostViewedVideoTitle: "Title: Second Video. View Count: 2000",
-				ViewCountAvg:         1500,
-				ViewPerMinuteAvg:     0,
+				VideoLengthsSum:  0 * time.Minute,
+				ViewCountSum:     4500,
+				MostViewedVideo:  statstools.MostViewedVideo{Title: "Second Video", ViewCount: 2000},
+				ViewCountAvg:     1500,
+				ViewPerMinuteAvg: 0,
 			},
 		},
 		{
