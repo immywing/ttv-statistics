@@ -79,10 +79,13 @@ Response:
 ```json
 {
   "video_lengths_sum": 3600000000000,
-  "most_viewed_video_title": "Title: Sample Video 1. View Count: 150",
   "view_count_sum": 300,
   "view_count_avg": 100,
-  "view_per_minute_avg": 5
+  "view_per_minute_avg": 5,
+  "most_viewed_video": {
+    "title": "Sample Video 1",
+    "view_count": 150
+  }
 }
 ```
 
