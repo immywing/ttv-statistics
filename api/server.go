@@ -22,8 +22,6 @@ func (s *ttvStatisticsServer) Run() {
 		log.Println("\n\t",
 			fmt.Sprintf("Serving %s\n\t", apiName),
 			fmt.Sprintf("host=%s\n\t", Host),
-			fmt.Sprintf("client-id=%s\n\t", helixclient.ClientID),
-			fmt.Sprintf("client-secret=%s\n\t", helixclient.ClientSecret),
 			fmt.Sprintf("helix-host=%s\n", helixclient.HelixHost),
 		)
 		err := s.server.ListenAndServe()
