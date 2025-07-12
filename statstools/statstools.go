@@ -11,7 +11,7 @@ type LastNVideoStatistics struct {
 	MostViewedVideoTitle string        `json:"most_viewed_video_title"`
 	ViewCountSum         int           `json:"view_count_sum"`
 	ViewCountAvg         int           `json:"view_count_avg"`
-	ViewPerMinuteAvg     int           `json:"avg_view_per_minute"`
+	ViewPerMinuteAvg     int           `json:"view_per_minute_avg"`
 }
 
 func AggregateStreamerVideoStatistics(videosData []helixclient.VideoInfo) (aggregateData LastNVideoStatistics, err error) {

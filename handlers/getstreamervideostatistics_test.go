@@ -35,7 +35,7 @@ func TestGetStreamerVideoStatistics(t *testing.T) {
 			name:         "Valid request",
 			userName:     "good_user",
 			queryParams:  map[string]string{"N": "3"},
-			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"avg_view_per_minute":5}`,
+			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"view_per_minute_avg":5}`,
 			expectedCode: http.StatusOK,
 		},
 		{
@@ -77,7 +77,7 @@ func TestGetStreamerVideoStatistics(t *testing.T) {
 			name:         "helix client fails to get user data",
 			userName:     "extra_data_user",
 			queryParams:  map[string]string{"N": "3"},
-			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"avg_view_per_minute":5}`,
+			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"view_per_minute_avg":5}`,
 			expectedCode: http.StatusOK,
 		},
 		{

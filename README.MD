@@ -82,7 +82,7 @@ Response:
   "most_viewed_video_title": "Title: Sample Video 1. View Count: 150",
   "view_count_sum": 300,
   "view_count_avg": 100,
-  "avg_view_per_minute": 5
+  "view_per_minute_avg": 5
 }
 ```
 
