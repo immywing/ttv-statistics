@@ -93,17 +93,10 @@ func GetStreamerFirstNVideoStatistics(ctx context.Context, userID string, n int)
 }
 
 func generateHeaders(setContentType bool) map[string]string {
-
-	headers := map[string]string{
+	return map[string]string{
 		clientIDHeaderKey:      ClientID,
 		authorisationHeaderKey: fmt.Sprintf("Bearer %s", helixAccessToken),
 	}
-
-	if setContentType {
-		headers[constants.ContentTypeHeaderKey] = constants.ContentTypeApplicationJson
-	}
-
-	return headers
 }
 
 func getHelixAccessToken(ctx context.Context) (responseBody TokenResponse, err error) {
@@ -152,24 +145,24 @@ func executeRequest[T ClientResponseModels](
 
 	response, err := helixClient.Do(req)
 	if err != nil {
-		return responseBody, fmt.Errorf("message=%q url=%q error=%v", "failed to execute http request", endpoint.String(), err)
+		return responseBody, fmt.Errorf("message=%s url=%s error=%v", "failed to execute http request", endpoint.String(), err)
 	}
 
 	defer func() {
 		if closeErr := response.Body.Close(); closeErr != nil {
-			log.Printf("message=%q url=%q error=%v\n ", "warning: failed to close response body", endpoint.String(), closeErr)
+			log.Printf("message=%s url=%s error=%s\n ", "warning: failed to close response body", endpoint.String(), closeErr)
 		}
 	}()
 
 	if response.StatusCode != http.StatusOK {
 		return responseBody,
-			fmt.Errorf("message=%q url=%q status_code=%d", "received unexpected status code", endpoint.String(), response.StatusCode)
+			fmt.Errorf("message=%s url=%s status_code=%d", "received unexpected status code", endpoint.String(), response.StatusCode)
 	}
 
 	responseBuffer, err := io.ReadAll(response.Body)
 	if err != nil {
 		return responseBody,
-			fmt.Errorf("message=%q url=%q error=%v", "failed to read response body", endpoint.String(), err)
+			fmt.Errorf("message=%s url=%s error=%s", "failed to read response body", endpoint.String(), err)
 	}
 
 	err = json.Unmarshal(responseBuffer, &responseBody)

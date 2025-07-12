@@ -16,6 +16,7 @@ import (
 func TestGetStreamerVideoStatistics(t *testing.T) {
 
 	stubServer := httptest.NewServer(testutil.StubServerMux())
+	helixclient.HelixHost = stubServer.URL
 	defer stubServer.Close()
 
 	helixclient.HelixHost = stubServer.URL
@@ -32,37 +33,65 @@ func TestGetStreamerVideoStatistics(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:         "Valid request",
-			userName:     "123",
+			userName:     "good_user",
 			queryParams:  map[string]string{"N": "3"},
 			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"avg_view_per_minute":5}`,
 			expectedCode: http.StatusOK,
 		},
 		{
 			name:         "Missing N param",
-			userName:     "123",
+			userName:     "good_user",
 			queryParams:  map[string]string{},
-			expectedBody: `missing required URL param "N"`,
+			expectedBody: `message=missing required URL param innermessage=N`,
 			expectedCode: http.StatusBadRequest,
 		},
 		{
 			name:         "Invalid N param",
-			userName:     "123",
+			userName:     "good_user",
 			queryParams:  map[string]string{"N": "abc"},
-			expectedBody: `invalid URL param "N" must be a valid integer`,
+			expectedBody: `message=invalid URL param innermessage=N must be a valid integer`,
 			expectedCode: http.StatusBadRequest,
 		},
 		{
 			name:         "Missing username",
 			userName:     "",
 			queryParams:  map[string]string{"N": "3"},
-			expectedBody: "missing required path param \"username\"", // this will depend on your router
+			expectedBody: `message=missing required path param innermessage=username`,
 			expectedCode: http.StatusNotFound,
+		},
+		{
+			name:         "helix client fails to get user data",
+			userName:     "bad_user",
+			queryParams:  map[string]string{"N": "3"},
+			expectedBody: fmt.Sprintf(`message=error occured obtaining ttv user data innermessage=message=received unexpected status code url=%s/users?login=bad_user status_code=400`, stubServer.URL),
+			expectedCode: http.StatusInternalServerError,
+		},
+		{
+			name:         "helix client fails to get user data",
+			userName:     "no_data_user",
+			queryParams:  map[string]string{"N": "3"},
+			expectedBody: `message=no user data found`,
+			expectedCode: http.StatusNoContent,
+		},
+		{
+			name:         "helix client fails to get user data",
+			userName:     "extra_data_user",
+			queryParams:  map[string]string{"N": "3"},
+			expectedBody: `{"video_lengths_sum":3600000000000,"most_viewed_video_title":"Title: Sample Video 1. View Count: 150","view_count_sum":300,"view_count_avg":100,"avg_view_per_minute":5}`,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name:         "helix client fails to get user data",
+			userName:     "good_user_bad_video_request",
+			queryParams:  map[string]string{"N": "3"},
+			expectedBody: fmt.Sprintf(`message=error occured obtaining ttv video data innermessagemessage=received unexpected status code url=%s/videos?first=3&user_id=00000 status_code=400`, stubServer.URL),
+			expectedCode: http.StatusInternalServerError,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Build URL
+
 			urlPath := fmt.Sprintf("/streamer/%s/statistics", tc.userName)
 			query := url.Values{}
 			for k, v := range tc.queryParams {
@@ -83,8 +112,9 @@ func TestGetStreamerVideoStatistics(t *testing.T) {
 				t.Errorf("expected status %d, got %d", tc.expectedCode, resp.StatusCode)
 			}
 
-			bodyStr := strings.TrimSpace(string(bodyBytes))
-			if !strings.Contains(bodyStr, tc.expectedBody) {
+			bodyStr := strings.Trim(string(bodyBytes), "\n")
+
+			if bodyStr != tc.expectedBody {
 				t.Errorf("want%q\n got %q", tc.expectedBody, bodyStr)
 			}
 		})

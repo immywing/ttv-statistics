@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"ttv-statistics/helixclient"
 )
 
 var (
@@ -18,7 +19,13 @@ type ttvStatisticsServer struct {
 func (s *ttvStatisticsServer) Run() {
 
 	go func() {
-		log.Printf("serving %s API at: %s\n", apiName, s.server.Addr)
+		log.Println("\n\t",
+			fmt.Sprintf("Serving %s\n\t", apiName),
+			fmt.Sprintf("host=%s\n\t", Host),
+			fmt.Sprintf("client-id=%s\n\t", helixclient.ClientID),
+			fmt.Sprintf("client-secret=%s\n\t", helixclient.ClientSecret),
+			fmt.Sprintf("helix-host=%s\n", helixclient.HelixHost),
+		)
 		err := s.server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Printf("error occurred while serving %s API: %v", apiName, err)

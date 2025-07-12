@@ -1,5 +1,5 @@
 # Start from official Go image
-FROM golang:1.21-alpine
+FROM golang:1.24-alpine
 
 # Set necessary Go env vars
 ENV CGO_ENABLED=0 \
@@ -8,7 +8,7 @@ ENV CGO_ENABLED=0 \
 # Create working directory
 WORKDIR /app
 
-# Copy go.mod and go.sum first to cache deps
+# Copy go.mod and go.sum first to cache deps.
 COPY go.mod go.sum ./
 RUN go mod download
 
