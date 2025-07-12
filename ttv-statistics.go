@@ -103,7 +103,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	helixclient.InitHelixClientAuth(context.Background())
+	clientAuthError := helixclient.InitHelixClientAuth(context.Background())
+	if clientAuthError != nil {
+		log.Printf("Failed to authenticate with TwithTV API. Error: %v", clientAuthError)
+	}
 
 	serverShutdownError := runServerAndAwaitShutdown()
 	if serverShutdownError != nil {
