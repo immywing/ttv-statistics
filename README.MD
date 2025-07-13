@@ -68,7 +68,7 @@ This command stops the container and triggers a clean application shutdown.
 ## 📈 Get Streamer Video Statistics
 
 Endpoint:
-`GET /streamer/{username}/statistics?N={number_of_videos}`
+`GET /ttv-statistics/streamer/{username}/statistics?N={number_of_videos}`
 
 Query Parameters:
 
