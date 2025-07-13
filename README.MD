@@ -6,10 +6,10 @@ A lightweight Go API that fetches and aggregates Twitch streamer video statistic
 
 ## 📚 Contents
 
-* [📌 Endpoints](#endpoints)
-* [💻 Running the Application Locally](#running-the-application-locally)
+* [📌 Endpoints](#-endpoints)
+* [💻 Running the Application Locally](#-running-the-application-locally)
 * [🐳 Running the Application Using Docker](#-running-the-application-using-docker)
-* [📈 Get Streamer Video Statistics](#get-streamer-video-statistics)
+* [📈 Get Streamer Video Statistics](#-running-the-application-using-docker)
 
 ---
 
