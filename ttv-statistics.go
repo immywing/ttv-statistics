@@ -85,12 +85,14 @@ func parseFlags() error {
 }
 
 func runServerAndAwaitShutdown() error {
+
 	server := api.NewTTVStatisticsServer()
 	server.Run()
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 	<-signals
 	return server.ShutDownServer(context.Background())
+
 }
 
 func main() {
