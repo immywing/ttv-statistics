@@ -15,7 +15,7 @@ A lightweight Go API that fetches and aggregates Twitch streamer video statistic
 
 ## 📌 Endpoints
 
-* [`GET /streamer/{username}/statistics`](#get-streamer-video-statistics)
+* [`GET /ttv-statistics/streamer/{username}/statistics`](#-get-streamer-video-statistics)
 
 ---
 
