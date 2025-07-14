@@ -120,10 +120,13 @@ func getHelixAccessToken(ctx context.Context) (responseBody TokenResponse, err e
 	return executeRequest[TokenResponse](ctx, http.MethodPost, endpoint, nil, headers, body)
 }
 
-// Template functions 😈
 func executeRequest[T ClientResponseModels](
 	ctx context.Context, method string, endpoint *url.URL, queryParams, headers map[string]string, body io.Reader,
 ) (responseBody T, err error) {
+
+	if endpoint == nil {
+		return responseBody, fmt.Errorf("message=%s", "received nil endpoint param")
+	}
 
 	query := endpoint.Query()
 

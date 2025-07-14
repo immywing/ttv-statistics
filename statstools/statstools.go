@@ -53,7 +53,5 @@ func AggregateStreamerVideoStatistics(videosData []helixclient.VideoInfo) (aggre
 		aggregateData.ViewPerMinuteAvg = aggregateData.ViewCountSum / int(aggregateData.VideoLengthsSum.Minutes())
 	}
 
-	// aggregateData.MostViewedVideo = fmt.Sprintf("Title: %s. View Count: %d", aggregateData.MostViewedVideo, topVideoViewCount)
-
 	return aggregateData, err
 }
